@@ -1,6 +1,8 @@
 ---
 title: "Congressional Analysis"
 output: html_notebook
+author: Jeff Mettel
+date: 2019-03-07
 ---
 
 # Sources
