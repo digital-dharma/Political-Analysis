@@ -1,0 +1,91 @@
+---
+title: "Congressional Analysis"
+output: html_notebook
+---
+
+# Sources
+* https://github.com/slowkow/ggrepel/issues/123
+* https://en.wikipedia.org/wiki/Demography_of_the_United_States
+
+# Analysis
+```{r}
+
+library(tidyverse)
+library(rsunlight)
+
+library(lubridate)
+
+library(ggrepel)
+
+```
+
+```{r}
+
+# Extract Current House Membership
+house <- cg_members(congress = 116, chamber = "house")
+
+# Format Columns as Needed
+house <- 
+house %>% 
+  mutate(
+    date_of_birth = as_date(date_of_birth),
+    current_age = time_length(today() - date_of_birth, unit = "year"), 
+    
+    seniority = as.numeric(seniority),
+    
+    party = case_when(party == "D" ~ "Democrat",
+                      party == "R" ~ "Republican",
+                      TRUE ~ "Other")
+  )
+
+```
+
+```{r fig.height=4, fig.width=6}
+
+# Establish Reproducible positioning 
+POS <- position_jitter(width = 0.4, seed = 42)
+
+# Congressmen / Congresswomen of Interest
+LAST_NAMES_OF_INTEREST <- c("Ocasio-Cortez")
+MEDIAN_AGE <- 38.1
+
+# Create Plot
+house_plot <- 
+house %>% 
+  
+  mutate(
+    Name = ifelse(last_name %in% LAST_NAMES_OF_INTEREST, last_name, "")
+  ) %>% 
+  
+  ggplot(aes(x = party, y = current_age)) + 
+  geom_jitter(aes(color = party, alpha = votes_with_party_pct, size = seniority), position = POS) +
+  geom_label_repel(aes(label = Name), position = POS, segment.size = .1) +
+  
+  geom_hline(yintercept = MEDIAN_AGE, linetype = "dashed") +
+  geom_text(aes(.6, MEDIAN_AGE, label = "American Median Age", vjust = -1)) +
+  
+  scale_color_manual(values = c("blue", "red")) +
+  scale_size_continuous(range = c(1, 15)) +
+  scale_alpha_continuous(range = c(0.1, 0.85)) +
+  
+  labs(
+    title = "United States House of Representatives",
+    subtitle = "116th Congress",
+    
+    x = "Party",
+    y = "Representative Age (Years)",
+    
+    color = "Party",
+    
+    alpha = "Percentage of Votes with Party",
+    size = "Years in Congress"
+  )
+
+# Display Plot
+house_plot
+
+# Save Plot
+ggsave(filename = here::here("Output", "House_of_Representatives.jpg"))
+
+```
+
