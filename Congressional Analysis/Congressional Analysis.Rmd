@@ -42,7 +42,7 @@ house %>%
 
 ```{r fig.height=4, fig.width=6}
 
-# Establish Reproducible positioning 
+# Establish Reproducible Positioning 
 POS <- position_jitter(width = 0.4, seed = 42)
 
 # Congressmen / Congresswomen of Interest
@@ -53,6 +53,7 @@ MEDIAN_AGE <- 38.1
 house_plot <- 
 house %>% 
   
+  # - Create Labeling Column Only for Congressional Members of Interest
   mutate(
     Name = ifelse(last_name %in% LAST_NAMES_OF_INTEREST, last_name, "")
   ) %>% 
@@ -62,7 +63,7 @@ house %>%
   geom_label_repel(aes(label = Name), position = POS, segment.size = .1) +
   
   geom_hline(yintercept = MEDIAN_AGE, linetype = "dashed") +
-  geom_text(aes(.6, MEDIAN_AGE, label = "American Median Age", vjust = -1)) +
+  geom_text(aes(.6, MEDIAN_AGE, label = "Median American Age", vjust = -1)) +
   
   scale_color_manual(values = c("blue", "red")) +
   scale_size_continuous(range = c(1, 15)) +
@@ -85,7 +86,7 @@ house %>%
 house_plot
 
 # Save Plot
-ggsave(filename = here::here("Output", "House_of_Representatives.jpg"))
+ggsave(filename = here::here("Congressional Analysis", "Output", "House_of_Representatives.jpg"))
 
 ```
 
